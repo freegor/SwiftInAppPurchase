@@ -3,6 +3,7 @@
 //  IAPMaster
 //
 //  Created by Suraphan on 12/2/2558 BE.
+//  Repaired by freegor 08/16/3506
 //  Copyright © 2558 irawd. All rights reserved.
 //
 import StoreKit
@@ -28,7 +29,7 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
         
     }
     func receiptURL() -> NSURL {
-        return NSBundle.mainBundle().appStoreReceiptURL!
+        return Bundle.main.appStoreReceiptURL!
     }
     
     func refreshReceipt(requestCallback: RequestReceiptCallback){
@@ -48,10 +49,10 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
     func verifyReceipt(autoRenewableSubscriptionsPassword:String?,receiptVerifyCallback:ReceiptVerifyCallback){
         self.receiptVerifyCallback = receiptVerifyCallback
         
-        let session = NSURLSession.sharedSession()
-        let receipt = NSData.init(contentsOfURL: self.receiptURL())
+        let session = URLSession.shared
+        let receipt = try? Data.init(contentsOf: self.receiptURL() as URL)
 
-        let requestContents :NSMutableDictionary = [ "receipt-data" : (receipt?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(rawValue: 0)))!]
+        let requestContents :NSMutableDictionary = [ "receipt-data" : (receipt?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)))!]
         
         if (autoRenewableSubscriptionsPassword != nil) {
             requestContents.setValue(autoRenewableSubscriptionsPassword, forKey: "password")
@@ -59,10 +60,10 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
         
         let storeURL = NSURL.init(string: isProduction ? productionVerifyURL:sandboxVerifyURL)
         
-        let storeRequest = NSMutableURLRequest.init(URL: storeURL!)
+        let storeRequest = NSMutableURLRequest.init(url: storeURL! as URL)
         
         do {
-            storeRequest.HTTPBody = try NSJSONSerialization.dataWithJSONObject(requestContents, options: [])
+            storeRequest.httpBody = try JSONSerialization.data(withJSONObject: requestContents, options: [])
         } catch {
             
             print(error)
@@ -70,15 +71,15 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
             return
         }
         
-        storeRequest.HTTPMethod = "POST"
+        storeRequest.httpMethod = "POST"
         
 
-        let task = session.dataTaskWithRequest(storeRequest, completionHandler: {data, response, error -> Void in
+        let task = session.dataTask(with: storeRequest as URLRequest, completionHandler: {data, response, error -> Void in
             
             guard error == nil else { return }
             let json: NSDictionary?
             do {
-                json = try NSJSONSerialization.JSONObjectWithData(data!, options: .MutableLeaves) as? NSDictionary
+                json = try JSONSerialization.jsonObject(with: data!, options: .mutableLeaves) as? NSDictionary
             } catch let dataError {
                 print(dataError)
                 receiptVerifyCallback(receipt: nil, error: NSError.init(domain: "JsonError", code: 0, userInfo: nil))
@@ -92,7 +93,7 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
             
             }
             else {
-                let jsonStr = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
                 print("Error could not parse JSON: \(jsonStr)")
                 
                 receiptVerifyCallback(receipt: nil, error: error)
