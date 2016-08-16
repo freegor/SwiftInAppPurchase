@@ -3,6 +3,7 @@
 //  Pods
 //
 //  Created by Suraphan on 12/13/2558 BE.
+//  Repaired by freegor 08/16/3506
 //
 //
 
@@ -41,29 +42,29 @@ public class SwiftInAppPurchase: NSObject {
         return self.productRequestHandler.products[productIdentifier]!
     }
     public func requestProducts(productIDS:Set<String>,completion:RequestProductCallback){
-        self.productRequestHandler.requestProduc(productIDS, requestCallback: completion)
+        self.productRequestHandler.requestProduc(productIds: productIDS, requestCallback: completion)
     }
     //  MARK: - Purchase
     public func addPayment(productIDS: String,userIdentifier:String?, addPaymentCallback: AddPaymentCallback){
         let product = self.productRequestHandler.products[productIDS]
         if product != nil {
-            self.paymentRequestHandler.addPayment(product!, userIdentifier: userIdentifier, addPaymentCallback: addPaymentCallback)
+            self.paymentRequestHandler.addPayment(product: product!, userIdentifier: userIdentifier, addPaymentCallback: addPaymentCallback)
         }else{
             addPaymentCallback(result:.Failed(error: NSError.init(domain: "AddPayment Unknow Product identifier", code: 0, userInfo: nil)))
         }
     }
     //  MARK: - Restore
     public func restoreTransaction(userIdentifier:String?,addPaymentCallback: AddPaymentCallback){
-        self.paymentRequestHandler.restoreTransaction(userIdentifier, addPaymentCallback: addPaymentCallback)
+        self.paymentRequestHandler.restoreTransaction(userIdentifier: userIdentifier, addPaymentCallback: addPaymentCallback)
     }
     public func checkIncompleteTransaction(addPaymentCallback: AddPaymentCallback){
-        self.paymentRequestHandler.checkIncompleteTransaction(addPaymentCallback)
+        self.paymentRequestHandler.checkIncompleteTransaction(addPaymentCallback: addPaymentCallback)
     }
     //  MARK: - Receipt
     public func refreshReceipt(requestCallback: RequestReceiptCallback){
-        self.receiptRequestHandler.refreshReceipt(requestCallback)
+        self.receiptRequestHandler.refreshReceipt(requestCallback: requestCallback)
     }
     public func verifyReceipt(autoRenewableSubscriptionsPassword:String?,receiptVerifyCallback:ReceiptVerifyCallback){
-        self.receiptRequestHandler.verifyReceipt(autoRenewableSubscriptionsPassword, receiptVerifyCallback: receiptVerifyCallback)
+        self.receiptRequestHandler.verifyReceipt(autoRenewableSubscriptionsPassword: autoRenewableSubscriptionsPassword, receiptVerifyCallback: receiptVerifyCallback)
     }
 }
