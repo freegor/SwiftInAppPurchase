@@ -3,6 +3,7 @@
 //  IAPMaster
 //
 //  Created by Suraphan on 11/30/2558 BE.
+//  Repaired by freegor 08/16/3506
 //  Copyright © 2558 irawd. All rights reserved.
 //
 import StoreKit
@@ -31,10 +32,10 @@ public class ProductRequestHandler: NSObject,SKProductsRequestDelegate {
         productRequest.start()
     }
     // MARK: SKProductsRequestDelegate
-    public func productsRequest(request: SKProductsRequest, didReceiveResponse response: SKProductsResponse) {
+    public func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
         
         for product in response.products{
-            addProduct(product)
+            addProduct(product: product)
         }
         requestCallback!(products: response.products, invalidIdentifiers: response.invalidProductIdentifiers, error: nil)
     }
