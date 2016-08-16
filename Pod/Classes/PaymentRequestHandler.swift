@@ -3,6 +3,7 @@
 //  IAPMaster
 //
 //  Created by Suraphan on 11/30/2558 BE.
+// Repaired by freegor 08/16/3506
 //  Copyright © 2558 irawd. All rights reserved.
 //
 
@@ -24,10 +25,10 @@ public class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
     private var incompleteTransaction : [SKPaymentTransaction] = []
     override init() {
         super.init()
-        SKPaymentQueue.defaultQueue().addTransactionObserver(self)
+        SKPaymentQueue.default().add(self)
     }
     deinit {
-        SKPaymentQueue.defaultQueue().removeTransactionObserver(self)
+        SKPaymentQueue.default().remove(self)
     }
     
     func addPayment(product: SKProduct,userIdentifier:String?, addPaymentCallback: AddPaymentCallback){
@@ -38,47 +39,47 @@ public class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
         if userIdentifier != nil {
             payment.applicationUsername = userIdentifier!
         }
-        SKPaymentQueue.defaultQueue().addPayment(payment)
+        SKPaymentQueue.default().add(payment)
     }
 
     func restoreTransaction(userIdentifier:String?,addPaymentCallback: AddPaymentCallback){
         
         self.addPaymentCallback = addPaymentCallback
         if userIdentifier != nil {
-           SKPaymentQueue.defaultQueue().restoreCompletedTransactionsWithApplicationUsername(userIdentifier)
+           SKPaymentQueue.default().restoreCompletedTransactions(withApplicationUsername: userIdentifier)
         }else{
-            SKPaymentQueue.defaultQueue().restoreCompletedTransactions()
+            SKPaymentQueue.default().restoreCompletedTransactions()
         }
         
     }
-    public func paymentQueue(queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]){
+    public func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]){
     
         for transaction in transactions {
             switch transaction.transactionState {
-            case .Purchased:
+            case .purchased:
                 if (addPaymentCallback != nil){
                     addPaymentCallback!(result:.Purchased(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 }else{
                     incompleteTransaction.append(transaction)
                 }
                 
-            case .Failed:
+            case .failed:
                 if (addPaymentCallback != nil){
                     addPaymentCallback!(result:.Failed(error: transaction.error!))
                 }
                 queue.finishTransaction(transaction)
                
-            case .Restored:
+            case .restored:
                 if (addPaymentCallback != nil){
                     addPaymentCallback!(result:.Restored(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 }else{
                     incompleteTransaction.append(transaction)
                 }
 
-            case .Purchasing:
+            case .purchasing:
                 // In progress: do nothing
                 break
-            case .Deferred:
+            case .deferred:
                 break
             }
 
@@ -89,14 +90,14 @@ public class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
     func checkIncompleteTransaction(addPaymentCallback: AddPaymentCallback){
      
         self.addPaymentCallback = addPaymentCallback
-        let queue = SKPaymentQueue.defaultQueue()
+        let queue = SKPaymentQueue.default()
         for transaction in self.incompleteTransaction {
             
             switch transaction.transactionState {
-            case .Purchased:
+            case .purchased:
                 addPaymentCallback(result:.Purchased(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 
-            case .Restored:
+            case .restored:
                 addPaymentCallback(result:.Restored(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 
             default:
