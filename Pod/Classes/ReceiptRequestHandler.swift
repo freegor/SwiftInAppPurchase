@@ -96,7 +96,7 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
                 let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
                 print("Error could not parse JSON: \(jsonStr)")
                 
-                receiptVerifyCallback(nil, error)
+                receiptVerifyCallback(nil, error as NSError?)
             }
             
         })
