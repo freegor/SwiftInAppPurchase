@@ -3,7 +3,7 @@
 //  IAPMaster
 //
 //  Created by Suraphan on 12/2/2558 BE.
-//  Repaired by freegor 08/16/3506
+//  Repaired by freegor 08/17/3506
 //  Copyright © 2558 irawd. All rights reserved.
 //
 import StoreKit
