@@ -8,7 +8,7 @@
 //
 import StoreKit
 
-public typealias RequestProductCallback = (products: [SKProduct]?,invalidIdentifiers:[String]?,error:NSError?) -> ()
+public typealias RequestProductCallback = (_ products: [SKProduct]?,_ invalidIdentifiers:[String]?,_ error:NSError?) -> ()
 
 public class ProductRequestHandler: NSObject,SKProductsRequestDelegate {
     
@@ -37,14 +37,14 @@ public class ProductRequestHandler: NSObject,SKProductsRequestDelegate {
         for product in response.products{
             addProduct(product: product)
         }
-        requestCallback!(products: response.products, invalidIdentifiers: response.invalidProductIdentifiers, error: nil)
+        requestCallback!(response.products, response.invalidProductIdentifiers, nil)
     }
 
     public func requestDidFinish(request: SKRequest) {
         print(request)
     }
     public func request(request: SKRequest, didFailWithError error: NSError) {
-        requestCallback!(products: nil, invalidIdentifiers: nil, error: error)
+        requestCallback!(nil, nil, error)
     }
     
 }
