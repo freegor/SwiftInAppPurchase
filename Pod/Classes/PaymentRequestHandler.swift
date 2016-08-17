@@ -11,18 +11,18 @@
 import StoreKit
 
 public enum TransactionResult {
-    case Purchased(productId: String,transaction:SKPaymentTransaction,paymentQueue:SKPaymentQueue)
-    case Restored(productId: String,transaction:SKPaymentTransaction,paymentQueue:SKPaymentQueue)
-    case NothingToDo
-    case Failed(error: NSError)
+    case purchased(productId: String,transaction:SKPaymentTransaction,paymentQueue:SKPaymentQueue)
+    case restored(productId: String,transaction:SKPaymentTransaction,paymentQueue:SKPaymentQueue)
+    case nothingToDo
+    case failed(error: NSError)
 }
-public typealias AddPaymentCallback = (result: TransactionResult) -> ()
+public typealias AddPaymentCallback = (_ result: TransactionResult) -> ()
 
-public class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
+open class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
 
     
-    private var addPaymentCallback: AddPaymentCallback?
-    private var incompleteTransaction : [SKPaymentTransaction] = []
+    fileprivate var addPaymentCallback: AddPaymentCallback?
+    fileprivate var incompleteTransaction : [SKPaymentTransaction] = []
     override init() {
         super.init()
         SKPaymentQueue.default().add(self)
@@ -58,20 +58,20 @@ public class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
             switch transaction.transactionState {
             case .purchased:
                 if (addPaymentCallback != nil){
-                    addPaymentCallback!(result:.Purchased(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
+                    addPaymentCallback!(.purchased(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 }else{
                     incompleteTransaction.append(transaction)
                 }
                 
             case .failed:
                 if (addPaymentCallback != nil){
-                    addPaymentCallback!(result:.Failed(error: transaction.error!))
+                    addPaymentCallback!(.failed(error: transaction.error! as NSError))
                 }
                 queue.finishTransaction(transaction)
                
             case .restored:
                 if (addPaymentCallback != nil){
-                    addPaymentCallback!(result:.Restored(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
+                    addPaymentCallback!(.restored(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 }else{
                     incompleteTransaction.append(transaction)
                 }
@@ -95,10 +95,10 @@ public class PaymentRequestHandler: NSObject,SKPaymentTransactionObserver {
             
             switch transaction.transactionState {
             case .purchased:
-                addPaymentCallback(result:.Purchased(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
+                addPaymentCallback(.purchased(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 
             case .restored:
-                addPaymentCallback(result:.Restored(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
+                addPaymentCallback(.restored(productId: transaction.payment.productIdentifier, transaction: transaction, paymentQueue: queue))
                 
             default:
                 break
