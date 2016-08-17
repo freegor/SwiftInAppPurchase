@@ -8,8 +8,8 @@
 //
 import StoreKit
 
-public typealias RequestReceiptCallback = (error:NSError?) -> ()
-public typealias ReceiptVerifyCallback = (receipt:NSDictionary?,error:NSError?) -> ()
+public typealias RequestReceiptCallback = (_ error:NSError?) -> ()
+public typealias ReceiptVerifyCallback = (_ receipt:NSDictionary?,_ error:NSError?) -> ()
 
 let productionVerifyURL = "http://buy.itunes.apple.com/verifyReceipt"
 let sandboxVerifyURL = "https://sandbox.itunes.apple.com/verifyReceipt"
@@ -28,7 +28,7 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
     deinit {
         
     }
-    func receiptURL() -> NSURL {
+    func receiptURL() -> URL {
         return Bundle.main.appStoreReceiptURL!
     }
     
@@ -40,10 +40,10 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
     }
 
     public func requestDidFinish(request: SKRequest) {
-       requestCallback!(error: nil)
+       requestCallback!(nil)
     }
     public func request(request: SKRequest, didFailWithError error: NSError) {
-        requestCallback!(error: error)
+        requestCallback!(error)
     }
 
     func verifyReceipt(autoRenewableSubscriptionsPassword:String?,receiptVerifyCallback:ReceiptVerifyCallback){
@@ -67,7 +67,7 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
         } catch {
             
             print(error)
-            receiptVerifyCallback(receipt: nil, error: NSError.init(domain: "JsonError", code: 0, userInfo: nil))
+            receiptVerifyCallback(nil, NSError.init(domain: "JsonError", code: 0, userInfo: nil))
             return
         }
         
@@ -82,21 +82,21 @@ public class ReceiptRequestHandler: NSObject ,SKRequestDelegate{
                 json = try JSONSerialization.jsonObject(with: data!, options: .mutableLeaves) as? NSDictionary
             } catch let dataError {
                 print(dataError)
-                receiptVerifyCallback(receipt: nil, error: NSError.init(domain: "JsonError", code: 0, userInfo: nil))
+                receiptVerifyCallback(nil, NSError.init(domain: "JsonError", code: 0, userInfo: nil))
                 return
             }
             
             if let parseJSON = json {
                 let success = parseJSON["success"] as? Int
                 print("Succes: \(success)")
-                receiptVerifyCallback(receipt: parseJSON, error: nil)
+                receiptVerifyCallback(parseJSON, nil)
             
             }
             else {
                 let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
                 print("Error could not parse JSON: \(jsonStr)")
                 
-                receiptVerifyCallback(receipt: nil, error: error)
+                receiptVerifyCallback(nil, error)
             }
             
         })
