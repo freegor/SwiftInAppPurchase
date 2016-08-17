@@ -42,7 +42,7 @@ open class SwiftInAppPurchase: NSObject {
         return self.productRequestHandler.products[productIdentifier]!
     }
     open func requestProducts(_ productIDS:Set<String>,completion:RequestProductCallback){
-        self.productRequestHandler.requestProduc(productIDS, requestCallback: completion)
+        self.productRequestHandler.requestProduc(productIds: productIDS, requestCallback: completion)
     }
     //  MARK: - Purchase
     open func addPayment(_ productIDS: String,userIdentifier:String?, addPaymentCallback: AddPaymentCallback){
@@ -62,9 +62,9 @@ open class SwiftInAppPurchase: NSObject {
     }
     //  MARK: - Receipt
     open func refreshReceipt(_ requestCallback: RequestReceiptCallback){
-        self.receiptRequestHandler.refreshReceipt(requestCallback)
+        self.receiptRequestHandler.refreshReceipt(requestCallback: requestCallback)
     }
     open func verifyReceipt(_ autoRenewableSubscriptionsPassword:String?,receiptVerifyCallback:ReceiptVerifyCallback){
-        self.receiptRequestHandler.verifyReceipt(autoRenewableSubscriptionsPassword, receiptVerifyCallback: receiptVerifyCallback)
+        self.receiptRequestHandler.verifyReceipt(autoRenewableSubscriptionsPassword: autoRenewableSubscriptionsPassword, receiptVerifyCallback: receiptVerifyCallback)
     }
 }
